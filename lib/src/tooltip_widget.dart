@@ -63,7 +63,7 @@ class ToolTipWidget extends StatefulWidget {
   final TextDirection? descriptionTextDirection;
 
   const ToolTipWidget({
-    Key? key,
+    super.key,
     required this.position,
     required this.offset,
     required this.screenSize,
@@ -94,7 +94,7 @@ class ToolTipWidget extends StatefulWidget {
     this.descriptionPadding,
     this.titleTextDirection,
     this.descriptionTextDirection,
-  }) : super(key: key);
+  });
 
   @override
   State<ToolTipWidget> createState() => _ToolTipWidgetState();
@@ -122,9 +122,10 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
         position.dy + ((widget.position?.getHeight() ?? 0) / 2);
     final topPosition = position.dy - ((widget.position?.getHeight() ?? 0) / 2);
     final hasSpaceInTop = topPosition >= height;
-    final EdgeInsets viewInsets = EdgeInsets.fromWindowPadding(
-        WidgetsBinding.instance.window.viewInsets,
-        WidgetsBinding.instance.window.devicePixelRatio);
+    final EdgeInsets viewInsets = EdgeInsets.fromViewPadding(
+      View.of(context).viewInsets,
+      View.of(context).devicePixelRatio,
+    );
     final double actualVisibleScreenHeight =
         (widget.screenSize?.height ?? MediaQuery.of(context).size.height) -
             viewInsets.bottom;

@@ -325,7 +325,7 @@ class Showcase extends StatefulWidget {
     this.disableDefaultTargetGestures = false,
     this.tooltipPosition,
     this.onBarrierClick,
-  })  : showArrow = false,
+  })  : showArrow = true,
         onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
         scaleAnimationCurve = Curves.decelerate,
@@ -591,7 +591,6 @@ class _TargetWidget extends StatelessWidget {
   final bool disableDefaultChildGestures;
 
   const _TargetWidget({
-    Key? key,
     required this.offset,
     this.size,
     this.onTap,
@@ -600,7 +599,7 @@ class _TargetWidget extends StatelessWidget {
     this.onDoubleTap,
     this.onLongPress,
     this.disableDefaultChildGestures = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
