@@ -6,10 +6,10 @@ class Detail extends StatefulWidget {
   const Detail({Key? key}) : super(key: key);
 
   @override
-  _DetailState createState() => _DetailState();
+  DetailState createState() => DetailState();
 }
 
-class _DetailState extends State<Detail> {
+class DetailState extends State<Detail> {
   final GlobalKey _one = GlobalKey();
   BuildContext? myContext;
 

@@ -48,10 +48,10 @@ class MailPage extends StatefulWidget {
   const MailPage({Key? key}) : super(key: key);
 
   @override
-  _MailPageState createState() => _MailPageState();
+  MailPageState createState() => MailPageState();
 }
 
-class _MailPageState extends State<MailPage> {
+class MailPageState extends State<MailPage> {
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
