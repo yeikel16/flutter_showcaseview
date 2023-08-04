@@ -29,6 +29,8 @@ import 'get_position.dart';
 import 'measure_size.dart';
 
 const _kDefaultPaddingFromParent = 14.0;
+const arrowWidth = 18.0;
+const arrowHeight = 9.0;
 
 class ToolTipWidget extends StatefulWidget {
   final GetPosition? position;
@@ -345,9 +347,6 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
       paddingBottom = 10;
     }
 
-    const arrowWidth = 18.0;
-    const arrowHeight = 9.0;
-
     if (!widget.disableScaleAnimation && widget.isTooltipDismissed) {
       _scaleAnimationController.reverse();
     }
@@ -477,11 +476,35 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
         ),
       );
     }
+
+    final current = startFrom(context, widget.position);
+    final center = widget.position?.getCenter() ?? 0;
+
     return Stack(
-      children: <Widget>[
+      children: [
+        if (widget.showArrow)
+          Positioned(
+            top: isArrowUp
+                ? contentY + 10 - (widget.tooltipPadding?.top ?? 0)
+                : contentY - 8 - (widget.tooltipPadding?.bottom ?? 0),
+            left: center - (arrowWidth / 2),
+            child: CustomPaint(
+              painter: _Arrow(
+                strokeColor: widget.tooltipBackgroundColor,
+                strokeWidth: 10,
+                paintingStyle: PaintingStyle.fill,
+                isUpArrow: isArrowUp,
+              ),
+              child: const SizedBox(
+                height: arrowHeight,
+                width: arrowWidth,
+              ),
+            ),
+          ),
         Positioned(
-          left: _getSpace(),
-          top: contentY - 10,
+          top: contentY,
+          left: current.left,
+          right: current.right,
           child: FractionalTranslation(
             translation: Offset(0.0, contentFractionalOffset as double),
             child: SlideTransition(
@@ -495,15 +518,15 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
                 color: Colors.transparent,
                 child: GestureDetector(
                   onTap: widget.onTooltipTap,
-                  child: Container(
+                  child: Padding(
                     padding: EdgeInsets.only(
-                      top: paddingTop,
+                      top: isArrowUp ? arrowHeight - 1 : 0,
+                      bottom: isArrowUp ? 0 : arrowHeight - 1,
                     ),
-                    color: Colors.transparent,
                     child: Center(
                       child: MeasureSize(
                         onSizeChange: onSizeChange,
-                        child: widget.container,
+                        child: widget.container ?? const SizedBox.shrink(),
                       ),
                     ),
                   ),
@@ -516,9 +539,45 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
     );
   }
 
+  ({double? left, double? right, bool isCenter}) startFrom(
+    BuildContext context,
+    GetPosition? wPosition,
+  ) {
+    final size = MediaQuery.sizeOf(context);
+    final width = size.width;
+
+    final rect = wPosition?.getRect();
+
+    double left = ((rect?.center.dx ?? 0) - 0).abs();
+    double right = ((rect?.center.dx ?? 0) - width).abs();
+
+    final minValue = min(left, right);
+    final maxValue = max(left, right);
+
+    if (minValue == maxValue) {
+      return (
+        left: null,
+        right: (_getSpace() - arrowWidth / 2).abs(),
+        isCenter: true,
+      );
+    } else if (minValue == left) {
+      return (
+        left: (((rect?.width ?? 0) / 2) - arrowWidth).abs(),
+        right: null,
+        isCenter: false,
+      );
+    } else {}
+
+    return (
+      left: null,
+      right: (size.width - (rect?.right ?? 0)).abs(),
+      isCenter: true,
+    );
+  }
+
   void onSizeChange(Size? size) {
     var tempPos = position;
-    tempPos = Offset(position!.dx, position!.dy + size!.height);
+    tempPos = Offset(position!.dx + size!.width, position!.dy + size.height);
     setState(() => position = tempPos);
   }
 
@@ -547,19 +606,19 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
 }
 
 class _Arrow extends CustomPainter {
-  final Color strokeColor;
+  final Color? strokeColor;
   final PaintingStyle paintingStyle;
   final double strokeWidth;
   final bool isUpArrow;
   final Paint _paint;
 
   _Arrow({
-    this.strokeColor = Colors.black,
+    this.strokeColor,
     this.strokeWidth = 3,
     this.paintingStyle = PaintingStyle.stroke,
     this.isUpArrow = true,
   }) : _paint = Paint()
-          ..color = strokeColor
+          ..color = strokeColor ?? Colors.black
           ..strokeWidth = strokeWidth
           ..style = paintingStyle;
 
